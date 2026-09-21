@@ -1,4 +1,3 @@
-# computer-use-automation
 # Computer Use Automation
 
 A browser automation prototype that uses an LLM during **discovery** to understand and complete a workflow, records the successful actions as a reusable artifact, and later executes that artifact through **deterministic replay without using the LLM**.
