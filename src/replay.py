@@ -3,52 +3,111 @@ from playwright.sync_api import sync_playwright
 from artifact.loader import load_artifact
 from artifact.resolver import resolve_target
 
-from safety import check_action_safety
+from safety import (
+    check_action_safety,
+    check_url_safety
+)
+
 from human_takeover import request_human_takeover
 from logger import RunLogger
 
 
 # ==========================================
-# RESOLVE TEMPLATE VALUE
+# RESOLVE RUNTIME VALUE
 # ==========================================
 
-def resolve_value(value, inputs):
+def resolve_value(
+    value,
+    inputs
+):
 
-    if not isinstance(value, str):
+    # Non-string values do not need
+    # template resolution.
+    if not isinstance(
+        value,
+        str
+    ):
         return value
 
+    # Check whether this value is a
+    # runtime input placeholder.
     if (
         value.startswith("{{")
         and value.endswith("}}")
     ):
 
-        input_name = value[2:-2].strip()
+        input_name = (
+            value[2:-2]
+            .strip()
+        )
 
+        # Runtime input was not provided.
         if input_name not in inputs:
+
             raise ValueError(
-                f"Missing required input: {input_name}"
+                f"Missing required input: "
+                f"{input_name}"
             )
 
-        return inputs[input_name]
+        return str(
+            inputs[input_name]
+        )
 
+    # Normal strings remain unchanged.
     return value
 
 
 # ==========================================
-# GET TARGET NAME
+# VALIDATE REQUIRED INPUTS
 # ==========================================
 
-def get_step_target_name(step):
+def validate_inputs(
+    artifact,
+    inputs
+):
+
+    for input_name, input_definition in (
+        artifact.inputs.items()
+    ):
+
+        if (
+            input_definition.required
+            and input_name not in inputs
+        ):
+
+            raise ValueError(
+                f"Missing required input: "
+                f"{input_name}"
+            )
+
+
+# ==========================================
+# GET STEP TARGET NAME
+# ==========================================
+
+def get_step_target_name(
+    step
+):
+
+    if not step.target:
+        return ""
 
     if step.target.accessible_name:
-        return step.target.accessible_name
 
-    primary = step.target.primary
+        return (
+            step.target
+            .accessible_name
+        )
 
-    if primary.accessible_name:
-        return primary.accessible_name
+    if step.target.primary:
 
-    return primary.value
+        return (
+            step.target
+            .primary
+            .value
+        )
+
+    return ""
 
 
 # ==========================================
@@ -60,17 +119,30 @@ def check_business_outcomes(
     artifact
 ):
 
-    page_text = page.locator(
-        "body"
-    ).inner_text()
+    page_text = (
+        page
+        .locator("body")
+        .inner_text()
+    )
 
-    for outcome in artifact.business_outcomes:
+    for outcome in (
+        artifact.business_outcomes
+        or []
+    ):
 
-        condition = outcome.condition
+        condition = (
+            outcome.condition
+        )
 
-        if condition.type == "text_present":
+        if (
+            condition.type
+            == "text_present"
+        ):
 
-            if condition.value in page_text:
+            if (
+                condition.value
+                in page_text
+            ):
 
                 return {
                     "status":
@@ -95,13 +167,23 @@ def check_checkpoint(
     artifact
 ):
 
-    checkpoint = artifact.checkpoint
+    if not artifact.checkpoint:
+        return True
 
-    if checkpoint.type == "text_present":
+    checkpoint = (
+        artifact.checkpoint
+    )
 
-        page_text = page.locator(
-            "body"
-        ).inner_text()
+    if (
+        checkpoint.type
+        == "text_present"
+    ):
+
+        page_text = (
+            page
+            .locator("body")
+            .inner_text()
+        )
 
         return (
             checkpoint.value
@@ -118,22 +200,31 @@ def check_checkpoint(
 def replay(
     artifact_path,
     inputs,
-    evidence_path="evidence/replay_success.json"
+    evidence_path=(
+        "evidence/replay_success.json"
+    )
 ):
 
-    # --------------------------------------
-    # Load artifact
-    # --------------------------------------
+    # ======================================
+    # LOAD ARTIFACT
+    # ======================================
 
     artifact = load_artifact(
         artifact_path
     )
 
-    outputs = {}
+    # ======================================
+    # VALIDATE REQUIRED INPUTS
+    # ======================================
 
-    # --------------------------------------
-    # Create evidence logger
-    # --------------------------------------
+    validate_inputs(
+        artifact,
+        inputs
+    )
+
+    # ======================================
+    # CREATE LOGGER
+    # ======================================
 
     logger = RunLogger(
         mode="replay",
@@ -142,481 +233,289 @@ def replay(
 
     logger.log_event(
         "replay_started",
-        artifact_path=artifact_path,
-        target_url=artifact.target.url
+        artifact_path=str(
+            artifact_path
+        ),
+        inputs=inputs
     )
 
-    with sync_playwright() as p:
+    outputs = {}
 
-        browser = p.chromium.launch(
-            headless=False
+    playwright = None
+    browser = None
+
+    try:
+
+        # ==================================
+        # START PLAYWRIGHT
+        # ==================================
+
+        playwright = (
+            sync_playwright()
+            .start()
         )
 
-        page = browser.new_page()
+        browser = (
+            playwright
+            .chromium
+            .launch(
+                headless=False
+            )
+        )
 
-        try:
+        page = (
+            browser
+            .new_page()
+        )
 
-            # ==================================
-            # OPEN APPLICATION
-            # ==================================
+        # ==================================
+        # URL SAFETY CHECK
+        # ==================================
+
+        target_url = (
+            artifact.target.url
+        )
+
+        url_safety = (
+            check_url_safety(
+                target_url
+            )
+        )
+
+        logger.log_event(
+            "url_safety_check",
+            url=target_url,
+            decision=url_safety
+        )
+
+        # ==================================
+        # BLOCK UNSAFE URL
+        # ==================================
+
+        if not url_safety[
+            "allowed"
+        ]:
+
+            result = {
+                "status":
+                    "blocked",
+
+                "reason":
+                    url_safety[
+                        "reason"
+                    ]
+            }
 
             logger.log_event(
-                "navigation_started",
-                url=artifact.target.url
+                "navigation_blocked",
+                url=target_url,
+                reason=url_safety[
+                    "reason"
+                ]
             )
 
-            page.goto(
-                artifact.target.url
+            logger.set_result(
+                result
+            )
+
+            logger.save(
+                evidence_path
+            )
+
+            return result
+
+        # ==================================
+        # NAVIGATE
+        # ==================================
+
+        logger.log_event(
+            "navigation_started",
+            url=target_url
+        )
+
+        page.goto(
+            target_url
+        )
+
+        logger.log_event(
+            "navigation_completed",
+            url=page.url
+        )
+
+        # ==================================
+        # EXECUTE STEPS
+        # ==================================
+
+        for step in artifact.steps:
+
+            step_id = (
+                step.id
+                if hasattr(
+                    step,
+                    "id"
+                )
+                else None
+            )
+
+            action_type = (
+                step.action
+            )
+
+            target_name = (
+                get_step_target_name(
+                    step
+                )
             )
 
             logger.log_event(
-                "navigation_completed",
-                url=page.url
+                "step_started",
+                step=step_id,
+                action=action_type,
+                target=target_name
             )
 
             # ==================================
-            # EXECUTE STEPS
+            # ACTION SAFETY CHECK
             # ==================================
 
-            for step in artifact.steps:
-
-                print(
-                    f"\nExecuting {step.id}: "
-                    f"{step.action}"
+            safety_result = (
+                check_action_safety(
+                    action_type,
+                    target_name
                 )
+            )
 
-                target_name = (
-                    get_step_target_name(
-                        step
-                    )
-                )
+            logger.log_event(
+                "safety_check",
+                step=step_id,
+                action=action_type,
+                target=target_name,
+                decision=safety_result
+            )
 
-                # ------------------------------
-                # Log step start
-                # ------------------------------
+            # ==================================
+            # HARD BLOCK
+            # ==================================
 
-                logger.log_event(
-                    "step_started",
-                    step=step.id,
-                    action=step.action,
-                    target=target_name
-                )
+            if (
+                safety_result[
+                    "decision"
+                ]
+                == "block"
+            ):
 
-                # ==============================
-                # SAFETY CHECK
-                # ==============================
+                result = {
+                    "status":
+                        "blocked",
 
-                safety_result = (
-                    check_action_safety(
-                        step.action,
-                        target_name
-                    )
-                )
-
-                print(
-                    "SAFETY CHECK:"
-                )
-
-                print(
-                    safety_result
-                )
-
-                logger.log_event(
-                    "safety_check",
-                    step=step.id,
-                    action=step.action,
-                    target=target_name,
-                    decision=(
-                        safety_result[
-                            "decision"
-                        ]
-                    ),
-                    reason=(
+                    "reason":
                         safety_result[
                             "reason"
                         ]
+                }
+
+                logger.log_event(
+                    "action_blocked",
+                    step=step_id,
+                    action=action_type,
+                    target=target_name,
+                    reason=safety_result[
+                        "reason"
+                    ]
+                )
+
+                logger.set_result(
+                    result
+                )
+
+                logger.save(
+                    evidence_path
+                )
+
+                return result
+
+            # ==================================
+            # HUMAN TAKEOVER
+            # ==================================
+
+            if (
+                safety_result[
+                    "decision"
+                ]
+                == "human_required"
+            ):
+
+                logger.log_event(
+                    "human_takeover_requested",
+                    step=step_id,
+                    action=action_type,
+                    target=target_name,
+                    reason=safety_result[
+                        "reason"
+                    ]
+                )
+
+                takeover_result = (
+                    request_human_takeover(
+                        page,
+                        safety_result[
+                            "reason"
+                        ],
+                        action=action_type,
+                        target=target_name
                     )
                 )
 
-                decision = safety_result[
-                    "decision"
-                ]
-
-                # ==============================
-                # BLOCK
-                # ==============================
-
-                if decision == "block":
-
-                    blocked_result = {
-
-                        "status":
-                            "blocked",
-
-                        "step":
-                            step.id,
-
-                        "action":
-                            step.action,
-
-                        "target":
-                            target_name,
-
-                        "reason":
-                            safety_result["reason"]
-                    }
-
-                    logger.log_event(
-                        "action_blocked",
-                        step=step.id,
-                        action=step.action,
-                        target=target_name,
-                        reason=(
-                            safety_result[
-                                "reason"
-                            ]
-                        )
-                    )
-
-                    logger.set_result(
-                        blocked_result
-                    )
-
-                    logger.save(
-                        evidence_path
-                    )
-
-                    print(
-                        "\nACTION BLOCKED"
-                    )
-
-                    print(
-                        blocked_result
-                    )
-
-                    return blocked_result
-
-                # ==============================
-                # HUMAN TAKEOVER
-                # ==============================
-
-                if decision == "human_required":
-
-                    logger.log_event(
-                        "human_takeover_started",
-                        step=step.id,
-                        action=step.action,
-                        target=target_name,
-                        reason=(
-                            safety_result[
-                                "reason"
-                            ]
-                        )
-                    )
-
-                    takeover_result = (
-                        request_human_takeover(
-
-                            page=page,
-
-                            reason=(
-                                safety_result[
-                                    "reason"
-                                ]
-                            ),
-
-                            action=step.action,
-
-                            target=target_name
-                        )
-                    )
-
-                    if (
-                        takeover_result["status"]
-                        != "resumed"
-                    ):
-
-                        logger.log_event(
-                            "human_takeover_failed",
-                            step=step.id,
-                            result=takeover_result
-                        )
-
-                        logger.set_result(
-                            takeover_result
-                        )
-
-                        logger.save(
-                            evidence_path
-                        )
-
-                        print(
-                            "\nTAKEOVER FAILED"
-                        )
-
-                        print(
-                            takeover_result
-                        )
-
-                        return takeover_result
-
-                    logger.log_event(
-                        "human_takeover_completed",
-                        step=step.id,
-                        resumed_url=page.url
-                    )
-
-                    print(
-                        "\nHuman completed the "
-                        "required action."
-                    )
-
-                    print(
-                        "Skipping automatic "
-                        f"execution of {step.id}."
-                    )
-
-                    logger.log_event(
-                        "step_completed_by_human",
-                        step=step.id,
-                        action=step.action,
-                        target=target_name
-                    )
-
-                    # --------------------------
-                    # Business outcome check
-                    # --------------------------
-
-                    business_result = (
-                        check_business_outcomes(
-                            page,
-                            artifact
-                        )
-                    )
-
-                    if business_result:
-
-                        logger.log_event(
-                            "business_outcome",
-                            step=step.id,
-                            code=(
-                                business_result[
-                                    "code"
-                                ]
-                            ),
-                            message=(
-                                business_result[
-                                    "message"
-                                ]
-                            )
-                        )
-
-                        logger.set_result(
-                            business_result
-                        )
-
-                        logger.save(
-                            evidence_path
-                        )
-
-                        print(
-                            "\nBUSINESS OUTCOME"
-                        )
-
-                        print(
-                            business_result
-                        )
-
-                        return business_result
-
-                    continue
-
-                # ==============================
-                # NORMAL SAFE ACTION
-                # ==============================
-
-                try:
-
-                    # --------------------------
-                    # FILL
-                    # --------------------------
-
-                    if step.action == "fill":
-
-                        locator = resolve_target(
-                            page,
-                            step.target
-                        )
-
-                        value = resolve_value(
-                            step.value,
-                            inputs
-                        )
-
-                        locator.fill(
-                            str(value)
-                        )
-
-                    # --------------------------
-                    # CLICK
-                    # --------------------------
-
-                    elif step.action == "click":
-
-                        locator = resolve_target(
-                            page,
-                            step.target
-                        )
-
-                        locator.click()
-
-                        page.wait_for_load_state(
-                            "domcontentloaded"
-                        )
-
-                    # --------------------------
-                    # READ
-                    # --------------------------
-
-                    elif step.action == "read":
-
-                        locator = resolve_target(
-                            page,
-                            step.target
-                        )
-
-                        value = (
-                            locator
-                            .inner_text()
-                            .strip()
-                        )
-
-                        if step.save_as:
-
-                            outputs[
-                                step.save_as
-                            ] = value
-
-                            logger.log_event(
-                                "output_extracted",
-                                step=step.id,
-                                output=step.save_as,
-                                value=value
-                            )
-
-                    else:
-
-                        raise ValueError(
-                            "Unsupported action: "
-                            f"{step.action}"
-                        )
-
-                    # --------------------------
-                    # Step completed
-                    # --------------------------
-
-                    logger.log_event(
-                        "step_completed",
-                        step=step.id,
-                        action=step.action,
-                        target=target_name
-                    )
-
-                # ==============================
-                # STEP FAILURE
-                # ==============================
-
-                except Exception as error:
-
-                    business_result = (
-                        check_business_outcomes(
-                            page,
-                            artifact
-                        )
-                    )
-
-                    if business_result:
-
-                        logger.log_event(
-                            "business_outcome",
-                            step=step.id,
-                            code=(
-                                business_result[
-                                    "code"
-                                ]
-                            ),
-                            message=(
-                                business_result[
-                                    "message"
-                                ]
-                            )
-                        )
-
-                        logger.set_result(
-                            business_result
-                        )
-
-                        logger.save(
-                            evidence_path
-                        )
-
-                        print(
-                            "\nBUSINESS OUTCOME"
-                        )
-
-                        print(
-                            business_result
-                        )
-
-                        return business_result
-
-                    failure = {
-
+                logger.log_event(
+                    "human_takeover_result",
+                    step=step_id,
+                    result=takeover_result
+                )
+
+                if (
+                    takeover_result[
+                        "status"
+                    ]
+                    != "resumed"
+                ):
+
+                    result = {
                         "status":
                             "failure",
 
-                        "error":
-                            "step_execution_failed",
-
-                        "step":
-                            step.id,
-
-                        "action":
-                            step.action,
-
-                        "message":
-                            str(error)
+                        "reason":
+                            takeover_result.get(
+                                "message",
+                                (
+                                    "Human takeover "
+                                    "failed"
+                                )
+                            )
                     }
 
-                    logger.log_event(
-                        "step_failed",
-                        step=step.id,
-                        action=step.action,
-                        target=target_name,
-                        error=str(error)
-                    )
-
                     logger.set_result(
-                        failure
+                        result
                     )
 
                     logger.save(
                         evidence_path
                     )
 
-                    print(
-                        "\nTECHNICAL FAILURE"
-                    )
+                    return result
 
-                    print(
-                        failure
-                    )
+                # Human completed the step
+                # manually in the same browser.
 
-                    return failure
+                logger.log_event(
+                    "step_completed",
+                    step=step_id,
+                    action=action_type,
+                    completed_by="human"
+                )
 
-                # ==============================
-                # BUSINESS OUTCOME AFTER STEP
-                # ==============================
+                # Check whether the human
+                # interaction caused a known
+                # business outcome.
 
                 business_result = (
                     check_business_outcomes(
@@ -629,17 +528,8 @@ def replay(
 
                     logger.log_event(
                         "business_outcome",
-                        step=step.id,
-                        code=(
-                            business_result[
-                                "code"
-                            ]
-                        ),
-                        message=(
-                            business_result[
-                                "message"
-                            ]
-                        )
+                        step=step_id,
+                        result=business_result
                     )
 
                     logger.set_result(
@@ -650,18 +540,197 @@ def replay(
                         evidence_path
                     )
 
-                    print(
-                        "\nBUSINESS OUTCOME"
+                    return business_result
+
+                # Do not execute the same
+                # action automatically.
+                continue
+
+            # ==================================
+            # NORMAL AUTOMATED EXECUTION
+            # ==================================
+
+            try:
+
+                # ==============================
+                # FILL
+                # ==============================
+
+                if action_type == "fill":
+
+                    locator = (
+                        resolve_target(
+                            page,
+                            step.target
+                        )
                     )
 
-                    print(
+                    runtime_value = (
+                        resolve_value(
+                            step.value,
+                            inputs
+                        )
+                    )
+
+                    locator.fill(
+                        runtime_value
+                    )
+
+                    logger.log_event(
+                        "step_completed",
+                        step=step_id,
+                        action="fill",
+                        target=target_name
+                    )
+
+                # ==============================
+                # CLICK
+                # ==============================
+
+                elif action_type == "click":
+
+                    locator = (
+                        resolve_target(
+                            page,
+                            step.target
+                        )
+                    )
+
+                    locator.click()
+
+                    page.wait_for_load_state(
+                        "domcontentloaded"
+                    )
+
+                    logger.log_event(
+                        "step_completed",
+                        step=step_id,
+                        action="click",
+                        target=target_name
+                    )
+
+                # ==============================
+                # READ
+                # ==============================
+
+                elif action_type == "read":
+
+                    locator = (
+                        resolve_target(
+                            page,
+                            step.target
+                        )
+                    )
+
+                    value = (
+                        locator
+                        .inner_text()
+                        .strip()
+                    )
+
+                    if step.save_as:
+
+                        outputs[
+                            step.save_as
+                        ] = value
+
+                        logger.log_event(
+                            "output_extracted",
+                            step=step_id,
+                            output=step.save_as,
+                            value=value
+                        )
+
+                    logger.log_event(
+                        "step_completed",
+                        step=step_id,
+                        action="read",
+                        target=target_name
+                    )
+
+                # ==============================
+                # UNSUPPORTED ACTION
+                # ==============================
+
+                else:
+
+                    raise ValueError(
+                        (
+                            "Unsupported replay "
+                            f"action: "
+                            f"{action_type}"
+                        )
+                    )
+
+            # ==================================
+            # STEP FAILURE
+            # ==================================
+
+            except Exception as error:
+
+                # Before treating this as a
+                # technical failure, check if
+                # the page shows a known
+                # business outcome.
+
+                business_result = (
+                    check_business_outcomes(
+                        page,
+                        artifact
+                    )
+                )
+
+                if business_result:
+
+                    logger.log_event(
+                        "business_outcome",
+                        step=step_id,
+                        result=business_result
+                    )
+
+                    logger.set_result(
                         business_result
+                    )
+
+                    logger.save(
+                        evidence_path
                     )
 
                     return business_result
 
+                result = {
+                    "status":
+                        "failure",
+
+                    "code":
+                        "step_execution_failed",
+
+                    "step":
+                        step_id,
+
+                    "reason":
+                        str(error)
+                }
+
+                logger.log_event(
+                    "step_failed",
+                    step=step_id,
+                    action=action_type,
+                    reason=str(error)
+                )
+
+                logger.set_result(
+                    result
+                )
+
+                logger.save(
+                    evidence_path
+                )
+
+                return result
+
             # ==================================
-            # FINAL BUSINESS OUTCOME
+            # BUSINESS OUTCOME AFTER STEP
             # ==================================
 
             business_result = (
@@ -675,12 +744,8 @@ def replay(
 
                 logger.log_event(
                     "business_outcome",
-                    code=business_result["code"],
-                    message=(
-                        business_result[
-                            "message"
-                        ]
-                    )
+                    step=step_id,
+                    result=business_result
                 )
 
                 logger.set_result(
@@ -689,199 +754,159 @@ def replay(
 
                 logger.save(
                     evidence_path
-                )
-
-                print(
-                    "\nBUSINESS OUTCOME"
-                )
-
-                print(
-                    business_result
                 )
 
                 return business_result
 
-            # ==================================
-            # CHECKPOINT
-            # ==================================
+        # ==================================
+        # FINAL BUSINESS OUTCOME CHECK
+        # ==================================
 
-            checkpoint_passed = (
-                check_checkpoint(
-                    page,
-                    artifact
-                )
+        business_result = (
+            check_business_outcomes(
+                page,
+                artifact
             )
+        )
+
+        if business_result:
 
             logger.log_event(
-                "checkpoint_checked",
-                condition=(
-                    artifact
-                    .checkpoint
-                    .value
-                ),
-                passed=checkpoint_passed
-            )
-
-            if not checkpoint_passed:
-
-                failure = {
-
-                    "status":
-                        "failure",
-
-                    "error":
-                        "checkpoint_failed",
-
-                    "message":
-                        (
-                            "Expected success "
-                            "checkpoint was not found"
-                        )
-                }
-
-                logger.log_event(
-                    "checkpoint_failed",
-                    condition=(
-                        artifact
-                        .checkpoint
-                        .value
-                    )
-                )
-
-                logger.set_result(
-                    failure
-                )
-
-                logger.save(
-                    evidence_path
-                )
-
-                print(
-                    "\nTECHNICAL FAILURE"
-                )
-
-                print(
-                    failure
-                )
-
-                return failure
-
-            # ==================================
-            # SUCCESS
-            # ==================================
-
-            result = {
-
-                "status":
-                    "success",
-
-                "outputs":
-                    outputs
-            }
-
-            logger.log_event(
-                "replay_completed",
-                status="success"
+                "business_outcome",
+                result=business_result
             )
 
             logger.set_result(
-                result
-            )
-
-            saved_log = logger.save(
-                evidence_path
-            )
-
-            print(
-                "\nSUCCESS"
-            )
-
-            print(
-                result
-            )
-
-            print(
-                "\nEVIDENCE SAVED:"
-            )
-
-            print(
-                saved_log
-            )
-
-            return result
-
-        # ======================================
-        # GENERAL TECHNICAL FAILURE
-        # ======================================
-
-        except Exception as error:
-
-            failure = {
-
-                "status":
-                    "failure",
-
-                "error":
-                    "replay_failed",
-
-                "message":
-                    str(error)
-            }
-
-            logger.log_event(
-                "replay_failed",
-                error=str(error)
-            )
-
-            logger.set_result(
-                failure
+                business_result
             )
 
             logger.save(
                 evidence_path
             )
 
-            print(
-                "\nTECHNICAL FAILURE"
+            return business_result
+
+        # ==================================
+        # FINAL CHECKPOINT
+        # ==================================
+
+        checkpoint_passed = (
+            check_checkpoint(
+                page,
+                artifact
+            )
+        )
+
+        logger.log_event(
+            "checkpoint_checked",
+            passed=checkpoint_passed
+        )
+
+        if not checkpoint_passed:
+
+            result = {
+                "status":
+                    "failure",
+
+                "code":
+                    "checkpoint_failed",
+
+                "reason":
+                    (
+                        "Expected checkpoint "
+                        "was not found"
+                    )
+            }
+
+            logger.set_result(
+                result
             )
 
-            print(
-                failure
+            logger.save(
+                evidence_path
             )
 
-            return failure
+            return result
 
-        # ======================================
-        # CLOSE BROWSER
-        # ======================================
+        # ==================================
+        # SUCCESS
+        # ==================================
 
-        finally:
+        result = {
+            "status":
+                "success",
 
-            input(
-                "\nPress Enter to close browser..."
-            )
+            "outputs":
+                outputs
+        }
+
+        logger.log_event(
+            "replay_completed",
+            outputs=outputs
+        )
+
+        logger.set_result(
+            result
+        )
+
+        logger.save(
+            evidence_path
+        )
+
+        return result
+
+    # ======================================
+    # GENERAL REPLAY FAILURE
+    # ======================================
+
+    except Exception as error:
+
+        result = {
+            "status":
+                "failure",
+
+            "code":
+                "replay_failed",
+
+            "reason":
+                str(error)
+        }
+
+        logger.log_event(
+            "replay_failure",
+            reason=str(error)
+        )
+
+        logger.set_result(
+            result
+        )
+
+        logger.save(
+            evidence_path
+        )
+
+        return result
+
+    # ======================================
+    # CLEANUP
+    # ======================================
+
+    finally:
+
+        if browser:
+
+            try:
+
+                input(
+                    "\nPress Enter to close browser..."
+                )
+
+            except EOFError:
+
+                pass
 
             browser.close()
 
+        if playwright:
 
-# ==========================================
-# RUN REPLAY
-# ==========================================
-
-if __name__ == "__main__":
-
-    replay(
-        (
-            "artifacts/"
-            "get_savings_balance_generated.json"
-        ),
-
-        {
-            "member_id": "123456789"
-        },
-
-        evidence_path=(
-            "evidence/"
-            "replay_success.json"
-        )
-    )
+            playwright.stop()
