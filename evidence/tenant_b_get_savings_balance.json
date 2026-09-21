@@ -1,0 +1,117 @@
+{
+    "mode": "replay",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-20T03:01:48.867478",
+    "finished_at": "2026-09-20T03:01:50.742409",
+    "events": [
+        {
+            "timestamp": "2026-09-20T03:01:48.867478",
+            "event": "replay_started",
+            "artifact_path": "C:\\Users\\Vaishnavi\\OneDrive\\Documents\\Masters\\Finalized\\computer-use-automation\\artifacts\\tenant_b_get_savings_balance.json",
+            "target_url": "http://127.0.0.1:5000/tenant-b"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.417872",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000/tenant-b"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.478445",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/tenant-b"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.479004",
+            "event": "step_started",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Customer ID"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.479004",
+            "event": "safety_check",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Customer ID",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.571050",
+            "event": "step_completed",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Customer ID"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.585140",
+            "event": "step_started",
+            "step": "step_2",
+            "action": "click",
+            "target": "Find Customer"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.585140",
+            "event": "safety_check",
+            "step": "step_2",
+            "action": "click",
+            "target": "Find Customer",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.691257",
+            "event": "step_completed",
+            "step": "step_2",
+            "action": "click",
+            "target": "Find Customer"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.708948",
+            "event": "step_started",
+            "step": "step_3",
+            "action": "read",
+            "target": "Savings Amount"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.709910",
+            "event": "safety_check",
+            "step": "step_3",
+            "action": "read",
+            "target": "Savings Amount",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.726579",
+            "event": "output_extracted",
+            "step": "step_3",
+            "output": "savings_amount",
+            "value": "$8,120.75"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.726579",
+            "event": "step_completed",
+            "step": "step_3",
+            "action": "read",
+            "target": "Savings Amount"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.742409",
+            "event": "checkpoint_checked",
+            "condition": "Savings Amount",
+            "passed": true
+        },
+        {
+            "timestamp": "2026-09-20T03:01:50.742409",
+            "event": "replay_completed",
+            "status": "success"
+        }
+    ],
+    "result": {
+        "status": "success",
+        "outputs": {
+            "savings_amount": "$8,120.75"
+        }
+    }
+}

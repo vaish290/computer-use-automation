@@ -1,0 +1,254 @@
+{
+    "mode": "discovery",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-19T22:09:39.456795",
+    "finished_at": "2026-09-19T22:09:44.877727",
+    "events": [
+        {
+            "timestamp": "2026-09-19T22:09:39.456795",
+            "event": "discovery_started",
+            "goal": "Retrieve the savings amount for customer C1001",
+            "target_url": "http://127.0.0.1:5000/tenant-b"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:41.851935",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000/tenant-b"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:42.179866",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/tenant-b"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:42.360577",
+            "event": "observation_created",
+            "step": 1,
+            "url": "http://127.0.0.1:5000/tenant-b",
+            "title": "Customer Account Search",
+            "control_count": 2,
+            "data_count": 0
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.292429",
+            "event": "llm_decision",
+            "step": 1,
+            "decision": {
+                "action": "fill",
+                "target": "control_1",
+                "value": "C1001"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.292429",
+            "event": "safety_check",
+            "step": 1,
+            "action": "fill",
+            "target": "Customer ID",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.309688",
+            "event": "action_executed",
+            "step": 1,
+            "action": "fill",
+            "target": "Customer ID",
+            "status": "executed"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.310688",
+            "event": "action_recorded",
+            "step": 1,
+            "action": "fill"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.368091",
+            "event": "observation_created",
+            "step": 2,
+            "url": "http://127.0.0.1:5000/tenant-b",
+            "title": "Customer Account Search",
+            "control_count": 2,
+            "data_count": 0
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.716517",
+            "event": "llm_decision",
+            "step": 2,
+            "decision": {
+                "action": "click",
+                "target": "control_2"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.717415",
+            "event": "safety_check",
+            "step": 2,
+            "action": "click",
+            "target": "Find Customer",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.838678",
+            "event": "action_executed",
+            "step": 2,
+            "action": "click",
+            "target": "Find Customer",
+            "status": "executed"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.839674",
+            "event": "action_recorded",
+            "step": 2,
+            "action": "click"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:43.958737",
+            "event": "observation_created",
+            "step": 3,
+            "url": "http://127.0.0.1:5000/tenant-b/customer/search",
+            "title": "Customer Account",
+            "control_count": 0,
+            "data_count": 4
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.433151",
+            "event": "llm_decision",
+            "step": 3,
+            "decision": {
+                "action": "read",
+                "target": "data_4",
+                "save_as": "savings_amount"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.433151",
+            "event": "safety_check",
+            "step": 3,
+            "action": "read",
+            "target": "Savings Amount",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.434666",
+            "event": "action_executed",
+            "step": 3,
+            "action": "read",
+            "target": "Savings Amount",
+            "status": "executed"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.434666",
+            "event": "action_recorded",
+            "step": 3,
+            "action": "read"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.511353",
+            "event": "observation_created",
+            "step": 4,
+            "url": "http://127.0.0.1:5000/tenant-b/customer/search",
+            "title": "Customer Account",
+            "control_count": 0,
+            "data_count": 4
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.871633",
+            "event": "llm_decision",
+            "step": 4,
+            "decision": {
+                "action": "complete",
+                "output": {
+                    "result": "completed"
+                }
+            }
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.872613",
+            "event": "goal_completed",
+            "step": 4,
+            "output": {
+                "result": "completed"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.872613",
+            "event": "artifact_built",
+            "artifact_name": "get_savings_balance",
+            "schema_version": "1.1",
+            "step_count": 3
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.876217",
+            "event": "artifact_generated",
+            "path": "artifacts\\tenant_b_get_savings_balance.json"
+        },
+        {
+            "timestamp": "2026-09-19T22:09:44.877727",
+            "event": "discovery_completed",
+            "status": "success"
+        }
+    ],
+    "result": {
+        "status": "success",
+        "output": {
+            "result": "completed"
+        },
+        "history": [
+            {
+                "action": "fill",
+                "target": "control_1",
+                "value": "C1001"
+            },
+            {
+                "action": "click",
+                "target": "control_2"
+            },
+            {
+                "action": "read",
+                "target": "data_4",
+                "save_as": "savings_amount"
+            }
+        ],
+        "records": [
+            {
+                "action": "fill",
+                "control_id": "control_1",
+                "control": {
+                    "control_id": "control_1",
+                    "role": "textbox",
+                    "label": "Customer ID",
+                    "name": "customer_id",
+                    "element_id": "customer_id",
+                    "input_type": "text",
+                    "placeholder": null
+                },
+                "value": "C1001"
+            },
+            {
+                "action": "click",
+                "control_id": "control_2",
+                "control": {
+                    "control_id": "control_2",
+                    "role": "button",
+                    "accessible_name": "Find Customer",
+                    "button_type": "submit"
+                }
+            },
+            {
+                "action": "read",
+                "data_id": "data_4",
+                "data": {
+                    "data_id": "data_4",
+                    "label": "Savings Amount",
+                    "value": "$8,120.75",
+                    "row_index": 3
+                },
+                "save_as": "savings_amount"
+            }
+        ],
+        "artifact_path": "artifacts\\tenant_b_get_savings_balance.json"
+    }
+}

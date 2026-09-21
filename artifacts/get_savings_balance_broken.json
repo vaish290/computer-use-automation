@@ -1,0 +1,90 @@
+{
+    "schema_version": "1.1",
+    "name": "get_savings_balance",
+    "description": "Retrieve the savings balance for a member",
+    "target": {
+        "url": "http://127.0.0.1:5000"
+    },
+    "inputs": {
+        "member_id": {
+            "type": "string",
+            "required": true
+        }
+    },
+    "steps": [
+        {
+            "id": "step_1",
+            "action": "fill",
+            "target": {
+                "role": "textbox",
+                "accessible_name": "Member Number",
+                "primary": {
+                    "strategy": "id",
+                    "value": "member_id_DOES_NOT_EXIST"
+                },
+                "fallbacks": [
+                    {
+                        "strategy": "name",
+                        "value": "member_id_DOES_NOT_EXIST"
+                    },
+                    {
+                        "strategy": "label",
+                        "value": "member_id_DOES_NOT_EXIST"
+                    },
+                    {
+                        "strategy": "role",
+                        "value": "textbox",
+                        "accessible_name": "member_id_DOES_NOT_EXIST"
+                    }
+                ]
+            },
+            "value": "{{member_id}}"
+        },
+        {
+            "id": "step_2",
+            "action": "click",
+            "target": {
+                "role": "button",
+                "accessible_name": "Search Member",
+                "primary": {
+                    "strategy": "role",
+                    "value": "button",
+                    "accessible_name": "Search Member"
+                },
+                "fallbacks": []
+            }
+        },
+        {
+            "id": "step_3",
+            "action": "read",
+            "target": {
+                "accessible_name": "Savings Balance",
+                "primary": {
+                    "strategy": "css",
+                    "value": "tr:has(td:text-is(\"Savings Balance\")) td:nth-child(2)"
+                },
+                "fallbacks": []
+            },
+            "save_as": "savings_balance"
+        }
+    ],
+    "outputs": {
+        "savings_balance": {
+            "type": "string"
+        }
+    },
+    "business_outcomes": [
+        {
+            "code": "member_not_found",
+            "condition": {
+                "type": "text_present",
+                "value": "Member not found"
+            },
+            "message": "The requested member was not found"
+        }
+    ],
+    "checkpoint": {
+        "type": "text_present",
+        "value": "Savings Balance"
+    }
+}

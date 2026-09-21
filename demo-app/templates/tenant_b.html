@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Account Search</title>
+</head>
+
+<body>
+
+    <h1>Customer Account Search</h1>
+
+    <form
+        action="/tenant-b/customer/search"
+        method="POST"
+    >
+
+        <label for="customer_id">
+            Customer ID
+        </label>
+
+        <input
+            type="text"
+            id="customer_id"
+            name="customer_id"
+        >
+
+        <button type="submit">
+            Find Customer
+        </button>
+
+    </form>
+
+
+    {% if error %}
+
+        <div id="error-message">
+            {{ error }}
+        </div>
+
+    {% endif %}
+
+</body>
+</html>

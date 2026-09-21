@@ -1,0 +1,114 @@
+{
+    "schema_version": "1.1",
+
+    "name": "get_savings_balance",
+
+    "description": "Look up a member and return their savings balance",
+
+    "target": {
+        "url": "http://127.0.0.1:5000"
+    },
+
+    "inputs": {
+        "member_id": {
+            "type": "string",
+            "required": true
+        }
+    },
+
+    "steps": [
+        {
+            "id": "step_1",
+            "action": "fill",
+
+            "target": {
+                "role": "textbox",
+                "accessible_name": "Member Number",
+
+                "primary": {
+                    "strategy": "id",
+                    "value": "member_id"
+                },
+
+                "fallbacks": [
+                    {
+                        "strategy": "name",
+                        "value": "member_id"
+                    },
+                    {
+                        "strategy": "label",
+                        "value": "Member Number"
+                    }
+                ]
+            },
+
+            "value": "{{member_id}}"
+        },
+
+        {
+            "id": "step_2",
+            "action": "click",
+
+            "target": {
+                "role": "button",
+                "accessible_name": "Search Member",
+
+                "primary": {
+                    "strategy": "role",
+                    "value": "button",
+                    "accessible_name": "Search Member"
+                },
+
+                "fallbacks": [
+                    {
+                        "strategy": "css",
+                        "value": "button[type='submit']"
+                    }
+                ]
+            }
+        },
+
+        {
+            "id": "step_3",
+            "action": "read",
+
+            "target": {
+                "role": null,
+                "accessible_name": null,
+
+                "primary": {
+                    "strategy": "css",
+                    "value": "body"
+                },
+
+                "fallbacks": []
+            },
+
+            "save_as": "page_text"
+        }
+    ],
+
+    "outputs": {
+        "page_text": {
+            "type": "string"
+        }
+    },
+
+    "business_outcomes": [
+        {
+            "code": "MEMBER_NOT_FOUND",
+
+            "condition": {
+                "type": "text_present",
+                "value": "Member not found"
+            },
+
+            "message": "No member exists for the provided member ID."
+        }
+    ],
+
+    "checkpoint": {
+        "type": "text_present",
+        "value": "Savings Balance"
+    }
+}

@@ -1,0 +1,78 @@
+{
+    "mode": "replay",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-18T01:50:53.679630",
+    "finished_at": "2026-09-18T01:50:57.011599",
+    "events": [
+        {
+            "timestamp": "2026-09-18T01:50:53.679630",
+            "event": "replay_started",
+            "artifact_path": "artifacts/get_savings_balance_generated.json",
+            "target_url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:56.703775",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:56.857992",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:56.857992",
+            "event": "step_started",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:56.857992",
+            "event": "safety_check",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:56.987958",
+            "event": "step_completed",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:57.011599",
+            "event": "step_started",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:57.011599",
+            "event": "safety_check",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member",
+            "decision": "block",
+            "reason": "Target contains blocked keyword: search"
+        },
+        {
+            "timestamp": "2026-09-18T01:50:57.011599",
+            "event": "action_blocked",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member",
+            "reason": "Target contains blocked keyword: search"
+        }
+    ],
+    "result": {
+        "status": "blocked",
+        "step": "step_2",
+        "action": "click",
+        "target": "Search Member",
+        "reason": "Target contains blocked keyword: search"
+    }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Account</title>
+</head>
+
+<body>
+
+    <h1>Customer Account</h1>
+
+    <table>
+
+        <tr>
+            <td>Customer ID</td>
+            <td>{{ customer_id }}</td>
+        </tr>
+
+        <tr>
+            <td>Customer Name</td>
+            <td>{{ customer.name }}</td>
+        </tr>
+
+        <tr>
+            <td>Current Amount</td>
+            <td>{{ customer.current }}</td>
+        </tr>
+
+        <tr>
+            <td>Savings Amount</td>
+            <td>{{ customer.savings }}</td>
+        </tr>
+
+    </table>
+
+
+    <a href="/tenant-b">
+        Back to Customer Search
+    </a>
+
+</body>
+</html>

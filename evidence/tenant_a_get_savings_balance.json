@@ -1,0 +1,117 @@
+{
+    "mode": "replay",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-20T03:01:06.911786",
+    "finished_at": "2026-09-20T03:01:08.696765",
+    "events": [
+        {
+            "timestamp": "2026-09-20T03:01:06.911786",
+            "event": "replay_started",
+            "artifact_path": "C:\\Users\\Vaishnavi\\OneDrive\\Documents\\Masters\\Finalized\\computer-use-automation\\artifacts\\get_savings_balance_generated.json",
+            "target_url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.368164",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.425790",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.425790",
+            "event": "step_started",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.425790",
+            "event": "safety_check",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.513503",
+            "event": "step_completed",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.524367",
+            "event": "step_started",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.524367",
+            "event": "safety_check",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.644478",
+            "event": "step_completed",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.661260",
+            "event": "step_started",
+            "step": "step_3",
+            "action": "read",
+            "target": "Savings Balance"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.661260",
+            "event": "safety_check",
+            "step": "step_3",
+            "action": "read",
+            "target": "Savings Balance",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.681053",
+            "event": "output_extracted",
+            "step": "step_3",
+            "output": "savings_balance",
+            "value": "$4,320.50"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.681053",
+            "event": "step_completed",
+            "step": "step_3",
+            "action": "read",
+            "target": "Savings Balance"
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.696765",
+            "event": "checkpoint_checked",
+            "condition": "Savings Balance",
+            "passed": true
+        },
+        {
+            "timestamp": "2026-09-20T03:01:08.696765",
+            "event": "replay_completed",
+            "status": "success"
+        }
+    ],
+    "result": {
+        "status": "success",
+        "outputs": {
+            "savings_balance": "$4,320.50"
+        }
+    }
+}

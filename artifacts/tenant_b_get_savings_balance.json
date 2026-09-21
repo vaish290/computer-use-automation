@@ -1,0 +1,90 @@
+{
+    "schema_version": "1.1",
+    "name": "get_savings_balance",
+    "description": "Retrieve the savings amount for a customer",
+    "target": {
+        "url": "http://127.0.0.1:5000/tenant-b"
+    },
+    "inputs": {
+        "customer_id": {
+            "type": "string",
+            "required": true
+        }
+    },
+    "steps": [
+        {
+            "id": "step_1",
+            "action": "fill",
+            "target": {
+                "role": "textbox",
+                "accessible_name": "Customer ID",
+                "primary": {
+                    "strategy": "id",
+                    "value": "customer_id"
+                },
+                "fallbacks": [
+                    {
+                        "strategy": "name",
+                        "value": "customer_id"
+                    },
+                    {
+                        "strategy": "label",
+                        "value": "Customer ID"
+                    },
+                    {
+                        "strategy": "role",
+                        "value": "textbox",
+                        "accessible_name": "Customer ID"
+                    }
+                ]
+            },
+            "value": "{{customer_id}}"
+        },
+        {
+            "id": "step_2",
+            "action": "click",
+            "target": {
+                "role": "button",
+                "accessible_name": "Find Customer",
+                "primary": {
+                    "strategy": "role",
+                    "value": "button",
+                    "accessible_name": "Find Customer"
+                },
+                "fallbacks": []
+            }
+        },
+        {
+            "id": "step_3",
+            "action": "read",
+            "target": {
+                "accessible_name": "Savings Amount",
+                "primary": {
+                    "strategy": "css",
+                    "value": "tr:has(td:text-is(\"Savings Amount\")) td:nth-child(2)"
+                },
+                "fallbacks": []
+            },
+            "save_as": "savings_amount"
+        }
+    ],
+    "outputs": {
+        "savings_amount": {
+            "type": "string"
+        }
+    },
+    "business_outcomes": [
+        {
+            "code": "customer_not_found",
+            "condition": {
+                "type": "text_present",
+                "value": "Customer not found"
+            },
+            "message": "The requested customer was not found"
+        }
+    ],
+    "checkpoint": {
+        "type": "text_present",
+        "value": "Savings Amount"
+    }
+}

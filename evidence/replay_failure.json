@@ -1,0 +1,55 @@
+{
+    "mode": "replay",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-18T01:55:14.931363",
+    "finished_at": "2026-09-18T01:55:17.091037",
+    "events": [
+        {
+            "timestamp": "2026-09-18T01:55:14.931363",
+            "event": "replay_started",
+            "artifact_path": "artifacts/get_savings_balance_broken.json",
+            "target_url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-18T01:55:16.802604",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-18T01:55:16.980294",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/"
+        },
+        {
+            "timestamp": "2026-09-18T01:55:16.980686",
+            "event": "step_started",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-18T01:55:16.980686",
+            "event": "safety_check",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-18T01:55:17.091037",
+            "event": "step_failed",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number",
+            "error": "Unable to resolve target. Tried: id=member_id_DOES_NOT_EXIST: not found | name=member_id_DOES_NOT_EXIST: not found | label=member_id_DOES_NOT_EXIST: not found | role=textbox: not found"
+        }
+    ],
+    "result": {
+        "status": "failure",
+        "error": "step_execution_failed",
+        "step": "step_1",
+        "action": "fill",
+        "message": "Unable to resolve target. Tried: id=member_id_DOES_NOT_EXIST: not found | name=member_id_DOES_NOT_EXIST: not found | label=member_id_DOES_NOT_EXIST: not found | role=textbox: not found"
+    }
+}

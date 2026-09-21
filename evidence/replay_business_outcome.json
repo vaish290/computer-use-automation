@@ -1,0 +1,82 @@
+{
+    "mode": "replay",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-18T01:08:44.629344",
+    "finished_at": "2026-09-18T01:08:47.221270",
+    "events": [
+        {
+            "timestamp": "2026-09-18T01:08:44.629344",
+            "event": "replay_started",
+            "artifact_path": "artifacts/get_savings_balance_generated.json",
+            "target_url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:46.065228",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.042221",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.042221",
+            "event": "step_started",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.042221",
+            "event": "safety_check",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.102100",
+            "event": "step_completed",
+            "step": "step_1",
+            "action": "fill",
+            "target": "Member Number"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.105306",
+            "event": "step_started",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.107324",
+            "event": "safety_check",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.207071",
+            "event": "step_completed",
+            "step": "step_2",
+            "action": "click",
+            "target": "Search Member"
+        },
+        {
+            "timestamp": "2026-09-18T01:08:47.221270",
+            "event": "business_outcome",
+            "step": "step_2",
+            "code": "member_not_found",
+            "message": "The requested member was not found"
+        }
+    ],
+    "result": {
+        "status": "business_outcome",
+        "code": "member_not_found",
+        "message": "The requested member was not found"
+    }
+}

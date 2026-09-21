@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Member Details</title>
+
+</head>
+
+<body>
+
+    <table border="1" width="700">
+
+        <tr>
+
+            <td colspan="2">
+                <h2>Member Details</h2>
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td>
+                Member Number
+            </td>
+
+            <td>
+                {{ member_id }}
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td>
+                Member Name
+            </td>
+
+            <td>
+                {{ member.name }}
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td>
+                Checking Balance
+            </td>
+
+            <td>
+                {{ member.checking }}
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td>
+                Savings Balance
+            </td>
+
+            <td>
+                {{ member.savings }}
+            </td>
+
+        </tr>
+
+
+        <tr>
+
+            <td colspan="2">
+
+                <a href="/">
+                    Return to Search
+                </a>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+</body>
+
+</html>

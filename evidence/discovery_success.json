@@ -1,0 +1,254 @@
+{
+    "mode": "discovery",
+    "artifact": "get_savings_balance",
+    "started_at": "2026-09-19T21:06:47.447787",
+    "finished_at": "2026-09-19T21:06:53.036659",
+    "events": [
+        {
+            "timestamp": "2026-09-19T21:06:47.447787",
+            "event": "discovery_started",
+            "goal": "Retrieve the savings balance for member 12345",
+            "target_url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:50.281523",
+            "event": "navigation_started",
+            "url": "http://127.0.0.1:5000"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:50.407907",
+            "event": "navigation_completed",
+            "url": "http://127.0.0.1:5000/"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:50.754311",
+            "event": "observation_created",
+            "step": 1,
+            "url": "http://127.0.0.1:5000/",
+            "title": "",
+            "control_count": 6,
+            "data_count": 0
+        },
+        {
+            "timestamp": "2026-09-19T21:06:51.821475",
+            "event": "llm_decision",
+            "step": 1,
+            "decision": {
+                "action": "fill",
+                "target": "control_3",
+                "value": "12345"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T21:06:51.822473",
+            "event": "safety_check",
+            "step": 1,
+            "action": "fill",
+            "target": "Member Number",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:51.846205",
+            "event": "action_executed",
+            "step": 1,
+            "action": "fill",
+            "target": "Member Number",
+            "status": "executed"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:51.846205",
+            "event": "action_recorded",
+            "step": 1,
+            "action": "fill"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.001488",
+            "event": "observation_created",
+            "step": 2,
+            "url": "http://127.0.0.1:5000/",
+            "title": "",
+            "control_count": 6,
+            "data_count": 0
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.212657",
+            "event": "llm_decision",
+            "step": 2,
+            "decision": {
+                "action": "click",
+                "target": "control_5"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.212657",
+            "event": "safety_check",
+            "step": 2,
+            "action": "click",
+            "target": "Search Member",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.274906",
+            "event": "action_executed",
+            "step": 2,
+            "action": "click",
+            "target": "Search Member",
+            "status": "executed"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.275928",
+            "event": "action_recorded",
+            "step": 2,
+            "action": "click"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.405618",
+            "event": "observation_created",
+            "step": 3,
+            "url": "http://127.0.0.1:5000/member/search",
+            "title": "Member Details",
+            "control_count": 0,
+            "data_count": 4
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.689292",
+            "event": "llm_decision",
+            "step": 3,
+            "decision": {
+                "action": "read",
+                "target": "data_4",
+                "save_as": "savings_balance"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.689292",
+            "event": "safety_check",
+            "step": 3,
+            "action": "read",
+            "target": "Savings Balance",
+            "decision": "allow",
+            "reason": "Action allowed"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.690267",
+            "event": "action_executed",
+            "step": 3,
+            "action": "read",
+            "target": "Savings Balance",
+            "status": "executed"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.690267",
+            "event": "action_recorded",
+            "step": 3,
+            "action": "read"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:52.774373",
+            "event": "observation_created",
+            "step": 4,
+            "url": "http://127.0.0.1:5000/member/search",
+            "title": "Member Details",
+            "control_count": 0,
+            "data_count": 4
+        },
+        {
+            "timestamp": "2026-09-19T21:06:53.026639",
+            "event": "llm_decision",
+            "step": 4,
+            "decision": {
+                "action": "complete",
+                "output": {
+                    "result": "completed"
+                }
+            }
+        },
+        {
+            "timestamp": "2026-09-19T21:06:53.027632",
+            "event": "goal_completed",
+            "step": 4,
+            "output": {
+                "result": "completed"
+            }
+        },
+        {
+            "timestamp": "2026-09-19T21:06:53.028634",
+            "event": "artifact_built",
+            "artifact_name": "get_savings_balance",
+            "schema_version": "1.1",
+            "step_count": 3
+        },
+        {
+            "timestamp": "2026-09-19T21:06:53.036659",
+            "event": "artifact_generated",
+            "path": "artifacts\\get_savings_balance_generated.json"
+        },
+        {
+            "timestamp": "2026-09-19T21:06:53.036659",
+            "event": "discovery_completed",
+            "status": "success"
+        }
+    ],
+    "result": {
+        "status": "success",
+        "output": {
+            "result": "completed"
+        },
+        "history": [
+            {
+                "action": "fill",
+                "target": "control_3",
+                "value": "12345"
+            },
+            {
+                "action": "click",
+                "target": "control_5"
+            },
+            {
+                "action": "read",
+                "target": "data_4",
+                "save_as": "savings_balance"
+            }
+        ],
+        "records": [
+            {
+                "action": "fill",
+                "control_id": "control_3",
+                "control": {
+                    "control_id": "control_3",
+                    "role": "textbox",
+                    "label": "Member Number",
+                    "name": "member_id",
+                    "element_id": "member_id",
+                    "input_type": "text",
+                    "placeholder": null
+                },
+                "value": "12345"
+            },
+            {
+                "action": "click",
+                "control_id": "control_5",
+                "control": {
+                    "control_id": "control_5",
+                    "role": "button",
+                    "accessible_name": "Search Member",
+                    "button_type": "submit"
+                }
+            },
+            {
+                "action": "read",
+                "data_id": "data_4",
+                "data": {
+                    "data_id": "data_4",
+                    "label": "Savings Balance",
+                    "value": "$4,320.50",
+                    "row_index": 4
+                },
+                "save_as": "savings_balance"
+            }
+        ],
+        "artifact_path": "artifacts\\get_savings_balance_generated.json"
+    }
+}
